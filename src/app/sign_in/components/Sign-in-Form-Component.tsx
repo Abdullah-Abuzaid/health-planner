@@ -23,12 +23,18 @@ export default function SignInForm() {
       <h1 className=" text-lg font-bold">Login</h1>
       <Form
         onSubmit={async (submit) => {
-          const authuser = await AuthenticationServices.login({
+          const res = await AuthenticationServices.login({
             email: formData.getValues("email"),
             password: formData.getValues("password"),
           });
-          if (authuser) {
-            authStore.setAuthUser(authuser);
+
+          if (res.succeeded) {
+            authStore.setAuthUser(res.data);
+          } else {
+            formData.setError("email", {
+              type: "manual",
+              message: res.message!,
+            });
           }
         }}
         className="flex flex-col gap-3"
@@ -38,25 +44,15 @@ export default function SignInForm() {
           {...formData.register("email")}
           isInvalid={formData.getFieldState("email").error !== undefined}
           errorMessage={formData.getFieldState("email").error?.message}
-          name="email"
           label="Email"
         />
-        <div className="flex flex-col gap-1 justify-start">
-          <a
-            onClick={() => {
-              openModal("resetPassword");
-            }}
-            className="text-blue-600"
-          >
-            Forget Password?
-          </a>
-          <Input
-            isInvalid={formData.getFieldState("password").error !== undefined}
-            errorMessage={formData.getFieldState("password").error?.message}
-            {...formData.register("password")}
-            label="Password"
-          />
-        </div>
+
+        <Input
+          isInvalid={formData.getFieldState("password").error !== undefined}
+          errorMessage={formData.getFieldState("password").error?.message}
+          {...formData.register("password")}
+          label="Password"
+        />
         <Button color="primary" type="submit">
           Login
         </Button>

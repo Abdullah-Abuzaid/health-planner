@@ -4,7 +4,7 @@ import { useAuthStore } from "@/core/auth/store/Auth-Store";
 import DividerText from "@/core/divider/Divider-Text-Component";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Divider, Input } from "@nextui-org/react";
-import { AuthUser } from "@prisma/client";
+
 import Link from "next/link";
 import { useState } from "react";
 import { Form, useForm } from "react-hook-form";
@@ -41,12 +41,17 @@ export default function SignUpForm() {
       <h1 className="text-lg font-bold">Create Account</h1>
       <Form
         onSubmit={async () => {
-          const authuser = await AuthenticationServices.register({
+          const res = await AuthenticationServices.register({
             email: formData.getValues("email"),
             password: formData.getValues("password"),
           });
-          if (authuser) {
-            authStore.setAuthUser(authuser);
+          if (res.succeeded) {
+            authStore.setAuthUser(res.data);
+          } else {
+            formData.setError("email", {
+              type: "manual",
+              message: res.message!,
+            });
           }
         }}
         className="gap-3 flex flex-col"
@@ -57,9 +62,6 @@ export default function SignUpForm() {
         <Input {...registerInput("email")} label="Email" />
         <Input
           {...registerInput("password")}
-          errorMessage={
-            <p> {formData.formState.errors.password?.message?.toString()}</p>
-          }
           label="Password"
           placeholder="Enter your password"
           endContent={

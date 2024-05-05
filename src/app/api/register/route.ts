@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       headers: { "content-type": "application/json" },
     });
   } catch (error) {
-    return new NextResponse(JSON.stringify({ message: error }), {
+    return new NextResponse(JSON.stringify({ message: "Database Error" }), {
       status: 500,
       headers: { "content-type": "application/json" },
     });

@@ -19,12 +19,6 @@ type State = {
 type Action = {
   setAuthUser: (authUser: AuthUser) => void;
 
-  registerAuthUser: ({
-    email,
-
-    password,
-  }: RegisterInterface) => Promise<AuthUser | undefined>;
-  login: ({ email, password }: LoginInterface) => Promise<AuthUser | undefined>;
   // registerUserData: (user: User) => Promise<User | undefined>;
   logout: () => void;
 };
@@ -32,20 +26,6 @@ type Action = {
 export const useAuthStore = create<State & Action>((set, get) => ({
   ...initialState,
 
-  registerAuthUser: async (user) => {
-    const data = await AuthenticationServices.register(user);
-    if (data) {
-      set({ ...get(), authUser: data });
-    }
-    return data;
-  },
-  login: async (user) => {
-    const data = await AuthenticationServices.login(user);
-    if (data) {
-      set({ ...get(), authUser: data });
-    }
-    return data;
-  },
   // registerUserData: (user) => {
   //   set({ ...get(), userData: user });
   //   return user;

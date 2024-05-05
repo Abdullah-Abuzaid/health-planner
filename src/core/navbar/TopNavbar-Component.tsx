@@ -22,7 +22,7 @@ export default function TopMenu() {
   const createProductModal = useDisclosure();
   const createCategoryModal = useDisclosure();
   const menuItems = ["Home", "Products", "Orders", "Log Out"];
-  console.log(authStore.authUser);
+
   return (
     <Navbar
       className="text-white bg-blue border-divider"
