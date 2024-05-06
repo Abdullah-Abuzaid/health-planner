@@ -57,11 +57,35 @@ export default function SignUpForm() {
         className="gap-3 flex flex-col"
         control={formData.control}
       >
-        <Input {...registerInput("fullName")} label="Full Name" />
+        <Input {...formData.register("fullName")}          isInvalid={
+            schema.safeParse({ email: formData.getValues("fullName") }).success
+          }
+          errorMessage={
+            schema.safeParse({ email: formData.getValues("fullName") }).error
+              ?.message
+          } label="Full Name" />
 
-        <Input {...registerInput("email")} label="Email" />
         <Input
-          {...registerInput("password")}
+          {...formData.register("email")}
+          isInvalid={
+            schema.safeParse({ email: formData.getValues("email") }).success
+          }
+          errorMessage={
+            schema.safeParse({ email: formData.getValues("email") }).error
+              ?.message
+          }
+          label="Email"
+        />
+        <Input
+          {...formData.register("password")}
+   
+          isInvalid={
+            schema.safeParse({ email: formData.getValues("password") }).success
+          }
+          errorMessage={
+            schema.safeParse({ email: formData.getValues("password") }).error
+              ?.message
+          }
           label="Password"
           placeholder="Enter your password"
           endContent={
