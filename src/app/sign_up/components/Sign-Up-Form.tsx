@@ -6,60 +6,69 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Divider, Input } from "@nextui-org/react";
 import { AuthUser } from "@prisma/client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Form, useForm } from "react-hook-form";
 import { BsEyeFill, BsEyeSlashFill } from "react-icons/bs";
 import { z } from "zod";
 
 export default function SignUpForm() {
+  const router = useRouter();
   const authStore = useAuthStore((state) => state);
 
   const passwordSchema = z.string().min(8).max(100);
   const emailSchema = z.string().email();
-  const fullNameSchema = z.string().min(3).max(100);
   const schema = z.object({
     email: emailSchema,
     password: passwordSchema,
-    fullName: fullNameSchema,
+
   });
+  type FormFields = z.infer<typeof schema>;
   const [isVisible, setIsVisible] = useState(false);
-  const formData = useForm({ resolver: zodResolver(schema) });
+  const {
+    register,
+
+    control,
+    setError,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormFields>({ resolver: zodResolver(schema) });
   const toggleVisibility = () => {
     setIsVisible((prev) => !prev);
-  };
-
-  const registerInput = (name: string) => {
-    return {
-      ...formData.register(name),
-      isInvalid: formData.getFieldState(name).error !== undefined,
-      errorMessage: formData.getFieldState(name).error?.message,
-    };
   };
 
   return (
     <div className="flex flex-col gap-3">
       <h1 className="text-lg font-bold">Create Account</h1>
-      <Form
-        onSubmit={async () => {
-          const authuser = await AuthenticationServices.register({
-            email: formData.getValues("email"),
-            password: formData.getValues("password"),
-          });
-          if (authuser) {
-            authStore.setAuthUser(authuser);
-          }
-        }}
-        className="gap-3 flex flex-col"
-        control={formData.control}
-      >
-        <Input {...registerInput("fullName")} label="Full Name" />
+      <form
+        onSubmit={handleSubmit(async (data) => {
 
-        <Input {...registerInput("email")} label="Email" />
-        <Input
-          {...registerInput("password")}
-          errorMessage={
-            <p> {formData.formState.errors.password?.message?.toString()}</p>
+          const registerData = await authStore.registerAuthUser({
+            password: data.password,
+            email: data.email,
+          });
+
+          if (registerData.succeeded) {
+            router.push("/sign_in");
+          } else {
+            setError("root", {
+              message: registerData.message!,
+            });
           }
+        })}
+        className="gap-3 flex flex-col"
+
+      >
+        <Input
+          {...register("email")}
+          isInvalid={errors.email !== undefined}
+          errorMessage={<p> {errors.email?.message}</p>}
+          label="Email"
+        />
+        <Input
+          {...register("password")}
+          isInvalid={errors.password !== undefined}
+          errorMessage={<p> {errors.password?.message}</p>}
           label="Password"
           placeholder="Enter your password"
           endContent={
@@ -77,10 +86,11 @@ export default function SignUpForm() {
           }
           type={isVisible ? "text" : "password"}
         />
+        <div className="text-red-500">{errors.root?.message}</div>
         <Button type="submit" color="primary">
           Sign Up
         </Button>
-      </Form>
+      </form>
 
       <DividerText
         content={
@@ -90,7 +100,7 @@ export default function SignUpForm() {
         }
       ></DividerText>
       <Link className="min-w-full" href={"sign_in"}>
-        <Button className="w-full" color="primary" variant="bordered">
+        <Button isLoading={isSubmitting} className="w-full" color="primary" variant="bordered">
           Login In
         </Button>
       </Link>

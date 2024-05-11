@@ -1,6 +1,6 @@
-import React from "react";
+"use client";
 import UsersCatalog from "../components/usersSearch/UsersCatalog";
-import ProviderCard from "../providers/page";
+
 import { useParticipantsStore } from "@/store/useParticipantsStore";
 import { Link } from "@nextui-org/react";
 import { User } from "./types";

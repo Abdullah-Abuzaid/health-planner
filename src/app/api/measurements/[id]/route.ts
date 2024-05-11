@@ -79,20 +79,20 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-export async function DELETE(req: NextApiRequest, res: NextApiResponse) {
+export async function DELETE(req: NextRequest, res: NextResponse) {
+  let id = req.url?.split("/").slice(-1).pop()
+
     try {
-      const { id } = req.query;
-  
-      // Delete the measurement from the database
       await prisma.measurements.delete({
         where: {
           Id: id as string,
         },
       });
-  
-      return NextResponse.json({ message: 'Measurement deleted successfully' });
+
+        return NextResponse.json({ message: 'Measurement deleted successfully' });
     } catch (error) {
-      console.error('Error deleting measurement:', error);
-      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        console.error('Error deleting measurement:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
+   
   }

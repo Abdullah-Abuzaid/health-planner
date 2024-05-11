@@ -2,7 +2,7 @@ import { z } from "zod";
 
 // make sure to use zod for validation otherwise return proper error response
 const diseaseSchema = z.object({
-    name: z.string().min(1, "Enter the name of the disease").max(255),
+  diseaseName: z.string().min(1, "Enter the name of the disease").max(255),
 });
 
 const medicationSchema = z.object({

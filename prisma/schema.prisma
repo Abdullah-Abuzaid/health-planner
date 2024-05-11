@@ -25,15 +25,15 @@ model AuthUser {
 }
 
 model User {
-  Id             String    @id @default(uuid())
-  firstname      String
+  userId         String    @unique
+  fullName       String?
   lastname       String?
-  phone          String
-  dateOfBirth    DateTime
+  phone          String?
+  dateOfBirth    DateTime?
   bio            String?
-  gender         Gender
+  gender         Gender?
   diagnosis      String?
-  address        String
+  address        String?
   healthBarriers String[]  @default([""]) //leave epmty for doctor. used for patients only
   avatarUrl      String?
   timezone       String?
@@ -43,15 +43,18 @@ model User {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   lastActiveAt   DateTime?
-  authUser       AuthUser? @relation(fields: [authUserId], references: [Id])
-  authUserId     String?   @unique
+  user           AuthUser  @relation(fields: [userId], references: [Id])
 
   email            String            @unique
   medicalHistory   MedicalHistory?
   userMedications  UserMedications?
   userMeasurements UserMeasurements?
 
-  Event Event?
+  Event      Event?
+  Plan       Plan[]
+  Task       Task[]
+  TaskEditor TaskEditor[]
+  PlanEditor PlanEditor[]
 }
 
 enum Gender {
@@ -71,20 +74,20 @@ enum Role {
 }
 
 model MedicalHistory {
-  Id          String    @id @default(uuid())
-  historyName String
-  diseases    Disease[] @relation("MedicalHistoryDisease")
+  Id                     String                  @id @default(uuid())
+  historyName            String
+  diseases               Disease[]               @relation("MedicalHistoryDisease")
   medicalHistoryDiseases MedicalHistoryDisease[]
-  user        User      @relation(fields: [userId], references: [Id])
-  userId      String    @unique
+  user                   User                    @relation(fields: [userId], references: [userId])
+  userId                 String                  @unique
 }
 
 model Disease {
-  Id          String           @id @default(uuid())
-  diseaseName String
-   medicalHistoryDiseases MedicalHistoryDisease[] 
-  histories   MedicalHistory[] @relation("MedicalHistoryDisease")
-  description String?
+  Id                     String                  @id @default(uuid())
+  diseaseName            String
+  medicalHistoryDiseases MedicalHistoryDisease[]
+  histories              MedicalHistory[]        @relation("MedicalHistoryDisease")
+  description            String?
 }
 
 model Medications {
@@ -101,7 +104,7 @@ model Medications {
 
 model UserMedications {
   Id          String        @id @default(uuid())
-  user        User          @relation(fields: [userId], references: [Id])
+  user        User          @relation(fields: [userId], references: [userId])
   userId      String        @unique
   medications Medications[]
 }
@@ -121,17 +124,19 @@ model Measurements {
 
 model UserMeasurements {
   Id           String         @id @default(uuid())
-  user         User           @relation(fields: [userId], references: [Id])
+  user         User           @relation(fields: [userId], references: [userId])
   userId       String         @unique
   measurements Measurements[]
 }
 
 model Event {
-  Id     String   @id @default(uuid())
-  user   User     @relation(fields: [userId], references: [Id])
-  userId String   @unique
-  date   DateTime
-  name   String
+  Id          String   @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [userId])
+  userId      String   @unique
+  date        DateTime
+  name        String
+  Plan        Plan?    @relation(fields: [planPlan_id], references: [plan_id])
+  planPlan_id String?
 }
 
 enum MeasurementType {
@@ -152,5 +157,83 @@ model MedicalHistoryDisease {
   diseaseId        String
   medicalHistory   MedicalHistory @relation(fields: [medicalHistoryId], references: [Id])
   disease          Disease        @relation(fields: [diseaseId], references: [Id])
+
   @@id([medicalHistoryId, diseaseId])
+}
+
+model Plan {
+  plan_id  String  @id @default(uuid())
+  name     String
+  owner_id String // Linking to the User model
+  filter   Json // Storing JSON data type for complex filtering details
+  group_by GroupBy // Enum type, define this based on the possible values
+  sort     Json // Storing JSON data type for sorting details
+
+  // Define the relationship to the User model
+  owner User @relation(fields: [owner_id], references: [userId])
+
+  // Assuming we might have related tasks or events
+  tasks  Task[]
+  events Event[]
+
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  PlanEditor PlanEditor[]
+}
+
+// Enum for group_by field, adjust the values according to your specific needs
+enum GroupBy {
+  Type
+  Date
+  Priority
+  // Add other grouping options as per your requirements
+}
+
+// Assuming Task and Event models exist and are related to Plan
+model Task {
+  task_id     String    @id @default(uuid())
+  title       String
+  description String?
+  is_done     Boolean
+  priority    Int
+  reminders   Int
+  ignore_time Boolean
+  start_date  DateTime?
+  end_date    DateTime?
+  owner_id    String
+  category_id String?
+  plan_id     String?
+
+  owner      User         @relation(fields: [owner_id], references: [userId])
+  category   Category?    @relation(fields: [category_id], references: [Id])
+  plan       Plan?        @relation(fields: [plan_id], references: [plan_id])
+  TaskEditor TaskEditor[]
+}
+
+model Category {
+  Id   String @id @default(uuid())
+  name String
+
+  // Assuming TaskCategory has a relation to Task where multiple tasks can belong to a single category
+  tasks Task[] // This relation needs to be defined in the Task model as well
+}
+
+model TaskEditor {
+  task_id String
+  user_id String
+
+  task Task @relation(fields: [task_id], references: [task_id])
+  user User @relation(fields: [user_id], references: [userId])
+
+  @@id([task_id, user_id])
+}
+
+model PlanEditor {
+  plan_id String
+  user_id String
+
+  plan Plan @relation(fields: [plan_id], references: [plan_id])
+  user User @relation(fields: [user_id], references: [userId])
+
+  @@id([plan_id, user_id])
 }

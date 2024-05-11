@@ -11,29 +11,29 @@ import ProviderCard from "./ProviderCard";
 const ProvidersCatalog = () => {
   const usersData: User[] = [];
   const { searchQuery, filteration } = useParticipantsStore((state) => state);
-  const filteredUsers = usersData.filter((user) => {
-    let isValid = false;
-    isValid =
-      user.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.lastname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.bio?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.phone.toLowerCase().includes(searchQuery.toLowerCase());
+  // const filteredUsers = usersData.filter((user) => {
+  //   let isValid = false;
+  //   isValid =
+  //     user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     user.lastname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     user.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     user.bio?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     user.phone.toLowerCase().includes(searchQuery.toLowerCase());
 
-    filteration.forEach((filter) => {
-      if (
-        filter.attribute === "gender" &&
-        filter.value !== "select" &&
-        filter.value !== ""
-      ) {
-        isValid =
-          isValid &&
-          user.gender.toLocaleLowerCase() === filter.value?.toLocaleLowerCase();
-      }
-    });
-    return isValid;
-  });
+  //   filteration.forEach((filter) => {
+  //     if (
+  //       filter.attribute === "gender" &&
+  //       filter.value !== "select" &&
+  //       filter.value !== ""
+  //     ) {
+  //       isValid =
+  //         isValid &&
+  //         user.gender.toLocaleLowerCase() === filter.value?.toLocaleLowerCase();
+  //     }
+  //   });
+  //   return isValid;
+  // });
 
   return (
     <UsersCatalog>

@@ -1,3 +1,4 @@
+'use client'
 import React from "react";
 import Avatar from "../../core/navbar/side_menu/Avatar";
 import { FaTelegramPlane } from "react-icons/fa";

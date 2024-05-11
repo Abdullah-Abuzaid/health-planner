@@ -4,8 +4,7 @@ import PrismaServices from "../Prisma-Services";
 const prisma = PrismaServices.instance;
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json();
-  console.log(email, password);
-  
+
   try {
     const userLogin = await prisma.authUser.findUnique({
       where: {
